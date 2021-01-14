@@ -25,7 +25,7 @@ namespace WebApplicationFacturas.Controllers
             this.context = context;
             this.mapper = mapper;
         }
-        // Get para obtener listado de empresas
+
         // GET api/empresa
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmpresasDTO>>> Get()
@@ -35,7 +35,6 @@ namespace WebApplicationFacturas.Controllers
             return empresasDTO;
         }
 
-        // get para obtener una empresa por su id
         // GET api/empresa/1
         [HttpGet("{id}", Name = "ObtenerEmpresa")]
         public async Task<ActionResult<EmpresasDTO>> Get(int id)
@@ -67,11 +66,26 @@ namespace WebApplicationFacturas.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] EmpresasDTO empresas)
         {
-          
-            var empresa = mapper.Map<Empresas>(empresas);
-            empresa.Id = id;
-            context.Entry(empresa).State = EntityState.Modified;
-            await context.SaveChangesAsync();
+            
+            try
+            {
+                var empresaBd = await context.Empresas.FirstOrDefaultAsync(x => x.Id == id);
+                if(empresaBd != null)
+                {
+                    var empresa = mapper.Map<Empresas>(empresas);
+                    empresa.Id = id;
+                    context.Entry(empresa).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch
+            {
+                return BadRequest("la empresa no esta en la base de datos");
+            }
             return Ok();
         }
         // para actualizar determinado campo

@@ -16,6 +16,5 @@ namespace WebApplicationFacturas.DTO
         public string Telefono { get; set; }
         public string Propietario { get; set; }
         public string Email { get; set; }
-        public ICollection<EmpleadosDTO> Empleados { get; set; }
     }
 }
