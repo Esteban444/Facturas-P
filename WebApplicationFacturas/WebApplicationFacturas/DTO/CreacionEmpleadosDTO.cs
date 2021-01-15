@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 
 namespace WebApplicationFacturas.DTO
 {
-    public class EmpresasCreacionDTO
+    public class CreacionEmpleadosDTO
     {
         [Required]
         public string Nombre { get; set; }
+        [Required]
+        public string Apellido { get; set; }
         public string Direccion { get; set; }
         public string Telefono { get; set; }
-        public string Propietario { get; set; }
-        public string Email { get; set; }
-        public string NIT { get; set; }
+        public string Usuario { get; set; }
+        public string Contraseña { get; set; }
+        public int EmpresaId { get; set; }
     }
 }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.Helpers;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -50,18 +51,18 @@ namespace WebApplicationFacturas.Controllers
             return empresaDTO ;
 
         }
-        // peticion para crear empresa
+       
         // POST api/empresa
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] EmpresasDTO empresa)
+        public async Task<ActionResult> Post([FromBody] EmpresasCreacionDTO empresascreacionDTO)
         {
-            var empresas = mapper.Map<Empresas>(empresa);
-            context.Add(empresas);
+            var empresa = mapper.Map<Empresas>(empresascreacionDTO);
+            context.Add(empresa);
             await context.SaveChangesAsync();
-            var empresaDTO = mapper.Map<EmpresasDTO>(empresas);
-            return new CreatedAtRouteResult("ObtenerEmpresa", new { id = empresas.Id }, empresaDTO);
+            var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
+            return new CreatedAtRouteResult("ObtenerEmpresa", new { id = empresa.Id }, empresaDTO);
         }
-        // peticion para actualizar empresa
+        
         // PUT api/empresa/5
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] EmpresasDTO empresas)
@@ -72,65 +73,51 @@ namespace WebApplicationFacturas.Controllers
                 var empresaBd = await context.Empresas.FirstOrDefaultAsync(x => x.Id == id);
                 if(empresaBd != null)
                 {
-                    var empresa = mapper.Map<Empresas>(empresas);
-                    empresa.Id = id;
-                    context.Entry(empresa).State = EntityState.Modified;
+                    mapper.Map(empresas, empresaBd);
                     await context.SaveChangesAsync();
                 }
                 else
                 {
-                    throw new Exception();
+                    throw new NullReferenceException();
                 }
             }
-            catch
+            catch(NullReferenceException)
             {
                 return BadRequest("la empresa no esta en la base de datos");
             }
-            return Ok();
+            return Ok(empresas);
         }
-        // para actualizar determinado campo
+        
         // PATCH api/cargos/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<EmpresasDTO> patchDocument)
+        public async Task<ActionResult> Patch(int id, [FromBody] EmpresasDTO empresasDTO)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-            var empresaDB = await context.Empresas.FirstOrDefaultAsync(x => x.Id == id);
-            if (empresaDB == null)
-            {
-                return NotFound();
-            }
-            var empresaDTO = mapper.Map<EmpresasDTO>(empresaDB);
 
-            patchDocument.ApplyTo(empresaDTO, ModelState);
-
-            mapper.Map(empresaDTO, empresaDB);
-
-            var isValid = TryValidateModel(empresaDB);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var properties = new UpdateMapperProperties<Empresas, EmpresasDTO>();
+            var empresa = context.Empresas.Find(id);
+            var result = await properties.MapperUpdate(empresa, empresasDTO);
             await context.SaveChangesAsync();
-            return NoContent();
+            
+            return Ok(result);
         }
-        // peticion Http para eliminar una empresa
+        
         // DELETE api/empresa/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Empresas>> Delete(int id)
         {
             var empresa = await context.Empresas.FirstOrDefaultAsync(x => x .Id == id);
 
-            if (empresa == null)
+            if (empresa != null)
             {
-                return NotFound("La empresa no existe en la base de datos");
+                context.Empresas.Remove(empresa);
+                await context.SaveChangesAsync();
+                return Ok(empresa);
             }
-            context.Remove(empresa);
-            await context.SaveChangesAsync();
-            return Ok(empresa);
+            else
+            {
+                return BadRequest("La empresa no existe en la base de datos");
+            }
+            
         }
       
     }

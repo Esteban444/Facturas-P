@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.Helpers;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -50,65 +51,70 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/empleado
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Empleados empleado)
+        public async Task<ActionResult> Post([FromBody] CreacionEmpleadosDTO creacionEmpleadosDTO)
         {
+            var empleado = mapper.Map<Empleados>(creacionEmpleadosDTO);
             context.Add(empleado);
             await context.SaveChangesAsync();
-            return new CreatedAtRouteResult("ObtenerEmpleado", new { id = empleado }, empleado);
+            var empleadoDTO = mapper.Map<EmpleadosDTO>(empleado);
+            return new CreatedAtRouteResult("ObtenerEmpleado", new { id = empleado }, empleadoDTO);
         }
 
         // PUT api/empleado/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] Empleados empleado)
+        public async Task<ActionResult> Put(int id, [FromBody] EmpleadosDTO empleado)
         {
-            if (empleado.Id != id)
+            try
             {
-                return BadRequest();
+                var empleadoBd = await context.Empleados.FirstOrDefaultAsync(x => x.Id == id);
+                if (empleadoBd != null)
+                {
+                    mapper.Map(empleado, empleadoBd);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new NullReferenceException();
+                }
             }
-
-            context.Entry(empleado).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-            return Ok();
+            catch(NullReferenceException)
+            {
+                return BadRequest("El empleado no se encuentra en la base de datos");
+            }
+            
+            return Ok(empleado);
         }
 
         // PATCH
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Empleados> patchDocument)
+        public async Task<ActionResult> Patch(int id, [FromBody] EmpleadosDTO empleadosDTO)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-            var empleado = await context.Empleados.FirstOrDefaultAsync(x => x.Id == id);
-            if (empleado == null)
-            {
-                return NotFound();
-            }
-
-            patchDocument.ApplyTo(empleado, ModelState);
-
-            var isValid = TryValidateModel(empleado);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
+           
+            var properties = new UpdateMapperProperties<Empleados, EmpleadosDTO>();
+            var empleado = context.Empleados.Find(id);
+            var result = await properties.MapperUpdate(empleado, empleadosDTO);
             await context.SaveChangesAsync();
-            return NoContent();
+            return Ok(result);
         }
+
         // DELETE api/empleado/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Empleados>> Delete(int id)
         {
             var empleado = await context.Empleados.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (empleado == null)
+            if (empleado != null)
+            {
+                context.Remove(empleado);
+                await context.SaveChangesAsync();
+                return Ok(empleado);
+                
+            }
+            else
             {
                 return NotFound("El empleado no existe en la base de datos");
             }
-            context.Remove(empleado);
-            await context.SaveChangesAsync();
-            return Ok(empleado);
+            
         }
 
     }

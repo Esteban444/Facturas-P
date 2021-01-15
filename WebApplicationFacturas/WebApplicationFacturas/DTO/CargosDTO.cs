@@ -8,7 +8,7 @@ namespace WebApplicationFacturas.DTO
 {
     public class CargosDTO
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         [Required]
         public string Nombre { get; set; }
         public int EmpleadoId { get; set; }

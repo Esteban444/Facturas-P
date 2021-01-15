@@ -17,6 +17,7 @@ namespace WebApplicationFacturas.Models
         public string Telefono { get; set; }
         public string Propietario { get; set; }
         public string Email { get; set; }
+        public string NIT { get; set; }
 
         public  ICollection<Empleados> Empleados { get; set; }
     }

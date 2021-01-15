@@ -9,12 +9,13 @@ namespace WebApplicationFacturas.DTO
 {
     public class EmpresasDTO
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         [Required]
         public string Nombre { get; set; }
         public string Direccion { get; set; }
         public string Telefono { get; set; }
         public string Propietario { get; set; }
         public string Email { get; set; }
+        public string NIT { get; set; }
     }
 }

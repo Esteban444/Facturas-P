@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.Helpers;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -48,51 +49,52 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/cargo
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Cargos cargos)
+        public async Task<ActionResult> Post([FromBody] CreacioncargosDTO creacioncargosDTO)
         {
-            context.Add(cargos);
+            var cargo = mapper.Map<Cargos> (creacioncargosDTO);
+            context.Add(cargo);
             await context.SaveChangesAsync();
-            return new CreatedAtRouteResult("ObtenerCargo", new { id = cargos.Id }, cargos);
+            var cargoDTO = mapper.Map<CargosDTO>(cargo);
+            return new CreatedAtRouteResult("ObtenerCargo", new { id = cargo.Id }, cargoDTO);
         }
 
         // PUT api/cargos/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] Cargos cargos)
+        public async Task<ActionResult> Put(int id, [FromBody] CargosDTO cargos)
         {
-            if (cargos.Id != id)
+            try
             {
-                return BadRequest();
-            }
+                var cargoBd = await context.Cargos.FirstOrDefaultAsync(x => x.Id == id);
+                if (cargoBd != null)
+                {
+                    mapper.Map(cargos, cargoBd);
+                    await context.SaveChangesAsync();
+                    
+                }
+                else
+                {
+                    throw new System.Exception();
+                }
 
-            context.Entry(cargos).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-            return Ok();
+                
+            }
+            catch (System.Exception)
+            {
+                return BadRequest("El cargo no exixte");
+            }
+            return Ok(cargos);
         }
 
         // PATCH api/cargos/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Cargos> patchDocument)
+        public async Task<ActionResult> Patch(int id, [FromBody] CargosDTO cargosDTO)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-            var cargo = await context.Cargos.FirstOrDefaultAsync(x => x.Id == id);
-            if (cargo == null)
-            {
-                return NotFound();
-            }
-
-            patchDocument.ApplyTo(cargo, ModelState);
-
-            var isValid = TryValidateModel(cargo);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
+           
+            var properties = new UpdateMapperProperties<Cargos, CargosDTO>();
+            var cargo = context.Cargos.Find(id);
+            var result = await properties.MapperUpdate(cargo, cargosDTO);
             await context.SaveChangesAsync();
-            return NoContent();
+            return Ok(result);
         }
         // DELETE api/cargos/5
         [HttpDelete("{id}")]
@@ -100,13 +102,17 @@ namespace WebApplicationFacturas.Controllers
         {
             var cargo = await context.Cargos.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (cargo == null)
+            if (cargo != null)
+            {
+                context.Remove(cargo);
+                await context.SaveChangesAsync();
+                return Ok(cargo);
+            }
+            else
             {
                 return NotFound("El cargo no existe en la base de datos");
             }
-            context.Remove(cargo);
-            await context.SaveChangesAsync();
-            return Ok(cargo);
+            
         }
 
     }
