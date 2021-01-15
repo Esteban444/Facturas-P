@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.Helpers;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -38,77 +39,81 @@ namespace WebApplicationFacturas.Controllers
         [HttpGet("{id}", Name = "ObtenerTipoCliente")]
         public async Task<ActionResult<TipoClientesDTO>> Get(int id)
         {
-            var tipoclientes = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
+            var tipoclientesBd = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (tipoclientes == null)
+            if (tipoclientesBd == null)
             {
                 return NotFound("El tipo cliente no existe");
             }
-            var tipoclientesDTO = mapper.Map<TipoClientesDTO>(tipoclientes);
+            var tipoclientesDTO = mapper.Map<TipoClientesDTO>(tipoclientesBd);
             return tipoclientesDTO;
 
         }
         // POST api/tipocliente
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] TipoClientes tipoclientes)
+        public async Task<ActionResult> Post([FromBody] CreaciontipoclientesDTO creaciontipoclientesDTO)
         {
-            context.Add(tipoclientes);
+            var tipocliente = mapper.Map<TipoClientes>(creaciontipoclientesDTO);
+            context.Add(tipocliente);
             await context.SaveChangesAsync();
-            return new CreatedAtRouteResult("ObtenerTipoCliente", new { id = tipoclientes.Id }, tipoclientes);
+            var tipoclienteDTO = mapper.Map<TipoClientesDTO>(tipocliente);
+            return new CreatedAtRouteResult("ObtenerTipoCliente", new { id = tipocliente.Id }, tipoclienteDTO);
         }
 
         // PUT api/tipocliente/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] TipoClientes tipoclientes)
+        public async Task<ActionResult> Put(int id, [FromBody] TipoClientesDTO tipoclientes)
         {
-            if (tipoclientes.Id != id)
+            try
             {
-                return BadRequest();
-            }
+                var tipoclienteBd = await context.TipoClientes.FirstOrDefaultAsync(X => X.Id == id);
+                if (tipoclienteBd != null)
+                {
+                    mapper.Map(tipoclientes, tipoclienteBd);
+                    await context.SaveChangesAsync();
 
-            context.Entry(tipoclientes).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-            return Ok("El tipo de Cliente fue modificado");
+                }
+                else
+                {
+                    throw new SystemException();
+                }
+            }
+            catch (SystemException)
+            {
+                return BadRequest("El tipo de cliente no exixte");
+            }
+            return Ok(tipoclientes);
         }
 
         // PATCH api/tipocliente/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<TipoClientes> patchDocument)
+        public async Task<ActionResult> Patch(int id, [FromBody] TipoClientesDTO tipoClientesDTO)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-            var tipoclientes = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
-            if (tipoclientes == null)
-            {
-                return NotFound();
-            }
-
-            patchDocument.ApplyTo(tipoclientes, ModelState);
-
-            var isValid = TryValidateModel(tipoclientes);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
+            var properties = new UpdateMapperProperties<TipoClientes, TipoClientesDTO>();
+            var tipocliente = context.TipoClientes.Find(id);
+            var result = await properties.MapperUpdate(tipocliente, tipoClientesDTO);
             await context.SaveChangesAsync();
-            return NoContent();
+            return Ok(result);
         }
         // DELETE api/tipocliente/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<TipoClientes>> Delete(int id)
         {
-            var tipoclientes = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
+            var tipoclienteBd = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (tipoclientes == null)
+            if (tipoclienteBd != null)
             {
-                return NotFound("El tipo de cliente no existe");
+                context.TipoClientes.Remove(tipoclienteBd);
+                await context.SaveChangesAsync();
+                return Ok(tipoclienteBd);
+
             }
-            context.Remove(tipoclientes);
-            await context.SaveChangesAsync();
-            return Ok(tipoclientes);
+            else
+            {
+                return BadRequest("El tipo de cliente no existe");
+            }
+            
         }
     }
 }

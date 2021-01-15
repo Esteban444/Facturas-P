@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.Helpers;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -42,7 +43,7 @@ namespace WebApplicationFacturas.Controllers
 
             if (categoria == null)
             {
-                return NotFound("La categoria no existe en la empresa");
+                return BadRequest("La categoria no existe en la empresa");
             }
             var categoriaDTO = mapper.Map<CategoriasDTO>(categoria);
             return categoriaDTO;
@@ -50,65 +51,68 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/categoria
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Categorias categorias)
+        public async Task<ActionResult> Post([FromBody] CreacionCategoriasDTO creacionCategoriasDTO)
         {
-            context.Add(categorias);
+            var categoria = mapper.Map<Categorias>(creacionCategoriasDTO);
+            context.Add(categoria);
             await context.SaveChangesAsync();
-            return new CreatedAtRouteResult("ObtenerCategoria", new { id = categorias.Id }, categorias);
+            var categoriasDTO = mapper.Map<CategoriasDTO>(categoria);
+            return new CreatedAtRouteResult("ObtenerCategoria", new { id = categoria.Id }, categoriasDTO);
         }
 
         // PUT api/categorias/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] Categorias categorias)
+        public async Task<ActionResult> Put(int id, [FromBody] CategoriasDTO categorias)
         {
-            if (categorias.Id != id)
+            try
             {
-                return BadRequest();
+                var categoriaBd = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
+                if (categoriaBd != null)
+                {
+                    mapper.Map(categorias, categoriaBd);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new SystemException();
+                }
             }
-
-            context.Entry(categorias).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-            return Ok();
+            catch (SystemException)
+            {
+                return BadRequest("La categoria no exixte");
+            }
+            
+            return Ok(categorias);
         }
 
         // PATCH api/categorias/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Categorias> patchDocument)
+        public async Task<ActionResult> Patch(int id, [FromBody] CategoriasDTO categoriasDTO)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-            var categoria = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
-            if (categoria == null)
-            {
-                return NotFound();
-            }
-
-            patchDocument.ApplyTo(categoria, ModelState);
-
-            var isValid = TryValidateModel(categoria);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
+            var properties = new UpdateMapperProperties<Categorias, CategoriasDTO>();
+            var categoria = context.Categorias.Find(id);
+            var result = await properties.MapperUpdate(categoria, categoriasDTO);
             await context.SaveChangesAsync();
-            return NoContent();
+
+            return Ok(result);
         }
         // DELETE api/categorias/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Categorias>> Delete(int id)
         {
-            var categoria = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
+            var categoriaBd = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (categoria == null)
+            if (categoriaBd != null)
             {
-                return NotFound("La categoria no existe en la base de datos");
+                context.Categorias.Remove(categoriaBd);
+                await context.SaveChangesAsync();
+                return Ok(categoriaBd);
             }
-            context.Remove(categoria);
-            await context.SaveChangesAsync();
-            return Ok(categoria);
+            else
+            {
+                return BadRequest("La categoria no existe en la base de datos");
+            }
         }
 
     }
