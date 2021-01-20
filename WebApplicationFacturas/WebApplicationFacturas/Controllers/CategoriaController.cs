@@ -28,11 +28,11 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/categoria
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoriasDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RequestedCategoriasDTO>>> Get()
         {
-            var categorias = await context.Categorias.ToListAsync();
-            var categoriasDTO = mapper.Map<List<CategoriasDTO>>(categorias);
-            return categoriasDTO;
+            var categoria = await context.Categorias.ToListAsync();
+            var pedidocategoriasDTO = mapper.Map<List<RequestedCategoriasDTO>>(categoria);
+            return pedidocategoriasDTO;
 
         }
         // GET api/categoria/1

@@ -28,11 +28,11 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/cliente
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClientesDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RequestedClientesDTO>>> Get()
         {
             var clientes = await context.Clientes.Include("TipoClientes").ToListAsync();
-            var clientesDTO = mapper.Map<List<ClientesDTO>>(clientes);
-            return clientesDTO;
+            var pedidoclientesDTO = mapper.Map<List<RequestedClientesDTO>>(clientes);
+            return pedidoclientesDTO;
 
         }
         // GET api/cliente/1

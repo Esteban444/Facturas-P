@@ -28,11 +28,11 @@ namespace WebApplicationFacturas.Controllers
         
         // GET api/empleado
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmpleadosDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RequestedEmpleadosDTO>>> Get()
         {
             var empleados = await context.Empleados.Include("Cargos").ToListAsync();
-            var empleadosDTO = mapper.Map<List<EmpleadosDTO>>(empleados);
-            return empleadosDTO;
+            var pedidoempleadosDTO = mapper.Map<List<RequestedEmpleadosDTO>>(empleados);
+            return pedidoempleadosDTO;
             
         }
         // GET api/empleado/1

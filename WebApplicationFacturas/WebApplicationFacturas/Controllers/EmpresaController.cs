@@ -29,11 +29,11 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/empresa
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmpresasDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RequestedEmpresasDTO>>> Get()
         {
             var empresas = await context.Empresas.Include("Empleados").ToListAsync();
-            var empresasDTO = mapper.Map<List<EmpresasDTO>>(empresas);
-            return empresasDTO;
+            var pedidoempresasDTO = mapper.Map<List<RequestedEmpresasDTO>>(empresas);
+            return pedidoempresasDTO;
         }
 
         // GET api/empresa/1
