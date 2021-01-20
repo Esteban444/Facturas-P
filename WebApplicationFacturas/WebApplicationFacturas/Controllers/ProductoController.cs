@@ -28,11 +28,11 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/producto
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductosDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RequestedProductosDTO>>> Get()
         {
             var productos = await context.Productos.Include ("Categorias").ToListAsync();
-            var productosDTO = mapper.Map<List<ProductosDTO>>(productos);
-            return productosDTO;
+            var pedidoproductosDTO = mapper.Map<List<RequestedProductosDTO>>(productos);
+            return pedidoproductosDTO;
 
         }
         // GET api/producto/1
@@ -51,9 +51,9 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/producto
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] ProductosDTO producto)
+        public async Task<ActionResult> Post([FromBody] CreacionProductosDTO creacionProductosDTO)
         {
-            var productos = mapper.Map<Productos>(producto);
+            var productos = mapper.Map<Productos>(creacionProductosDTO);
             context.Add(productos);
             await context.SaveChangesAsync();
             var productosDTO = mapper.Map<ProductosDTO>(productos);
