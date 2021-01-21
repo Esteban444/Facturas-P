@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.Helpers;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -27,11 +28,11 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/factura
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FacturasDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<RequestedFacturasDTO>>> Get()
         {
             var facturas = await context.Facturas.Include("FacturasProductos").ToListAsync();
-            var facturasDTO = mapper.Map<List<FacturasDTO>>(facturas);
-            return facturasDTO;
+            var pedidofacturasDTO = mapper.Map<List<RequestedFacturasDTO>>(facturas);
+            return pedidofacturasDTO;
 
         }
         // GET api/factura/1
@@ -50,51 +51,49 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/factura
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Facturas facturas)
+        public async Task<ActionResult> Post([FromBody] CreacionFacturasDTO creacionFacturasDTO)
         {
-            context.Add(facturas);
+            var factura = mapper.Map<Facturas>(creacionFacturasDTO);
+            context.Add(factura);
             await context.SaveChangesAsync();
-            return new CreatedAtRouteResult("ObtenerFactura", new { id = facturas.Id }, facturas);
+            var facturasDTO = mapper.Map<FacturasDTO>(factura);
+            return new CreatedAtRouteResult("ObtenerFactura", new { id = factura.Id }, facturasDTO);
         }
 
         // PUT api/factura/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] Facturas facturas)
+        public async Task<ActionResult> Put(int id, [FromBody] FacturasDTO facturas)
         {
-            if (facturas.Id != id)
+            try
             {
-                return BadRequest();
+                var facturaBd = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
+                if (facturaBd != null)
+                {
+                    mapper.Map(facturas, facturaBd);
+                    await context.SaveChangesAsync();
+                    return Ok(facturas);
+                }
+                else
+                {
+                    throw new Exception();
+                }
             }
-
-            context.Entry(facturas).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-            return Ok("La factura fue modificado");
+            catch (Exception)
+            {
+                return BadRequest("La factura no existe");
+            }
         }
 
         // PATCH api/factura/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<Facturas> patchDocument)
+        public async Task<ActionResult> Patch(int id, [FromBody] FacturasDTO facturasDTO)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-            var facturas = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
-            if (facturas == null)
-            {
-                return NotFound();
-            }
-
-            patchDocument.ApplyTo(facturas, ModelState);
-
-            var isValid = TryValidateModel(facturas);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
+            
+            var properties = new UpdateMapperProperties<Facturas, FacturasDTO>();
+            var facturas = context.Facturas.Find(id);
+            var result = await properties.MapperUpdate(facturas, facturasDTO);
             await context.SaveChangesAsync();
-            return NoContent();
+            return Ok(result);
         }
         // DELETE api/factura/5
         [HttpDelete("{id}")]
@@ -102,13 +101,17 @@ namespace WebApplicationFacturas.Controllers
         {
             var facturas = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (facturas == null)
+            if (facturas != null)
+            {
+                context.Remove(facturas);
+                await context.SaveChangesAsync();
+                return Ok(facturas);
+            }
+            else
             {
                 return NotFound("La factura no existe");
             }
-            context.Remove(facturas);
-            await context.SaveChangesAsync();
-            return Ok(facturas);
+            
         }
 
     }
