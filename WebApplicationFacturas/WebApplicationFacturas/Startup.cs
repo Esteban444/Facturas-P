@@ -89,7 +89,9 @@ namespace WebApplicationFacturas
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplicationFacturas V1");
             });
-
+            app.UseCors(builder =>{
+                builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            });
             app.UseRouting();
 
             app.UseAuthorization();
