@@ -51,13 +51,12 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/producto
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreacionProductosDTO creacionProductosDTO)
+        public async Task<Productos> Post([FromBody] CreacionProductosDTO creacionProductosDTO)
         {
             var productos = mapper.Map<Productos>(creacionProductosDTO);
             context.Add(productos);
             await context.SaveChangesAsync();
-            var productosDTO = mapper.Map<ProductosDTO>(productos);
-            return new CreatedAtRouteResult("ObtenerProducto", new { id = productos.Id }, productosDTO);
+            return productos;
         }
 
         // PUT api/producto/5

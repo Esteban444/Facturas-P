@@ -39,7 +39,7 @@ namespace WebApplicationFacturas.Controllers
         [HttpGet("{id}", Name = "ObtenerCliente")]
         public async Task<ActionResult<ClientesDTO>> Get(int id)
         {
-            var clienteBd = await context.Clientes.Include("TipoClientes").FirstOrDefaultAsync(x => x.Id == id);
+            var clienteBd = await context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
 
             if (clienteBd == null)
             {

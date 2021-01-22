@@ -40,7 +40,7 @@ namespace WebApplicationFacturas.Controllers
         [HttpGet("{id}", Name = "ObtenerEmpresa")]
         public async Task<ActionResult<EmpresasDTO>> Get(int id)
         {
-            var empresa = await context.Empresas.Include("Empleados").FirstOrDefaultAsync(x => x.Id == id);
+            var empresa = await context.Empresas.FirstOrDefaultAsync(x => x.Id == id);
 
             if (empresa == null)
             {

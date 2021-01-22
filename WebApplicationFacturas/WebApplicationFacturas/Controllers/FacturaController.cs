@@ -26,11 +26,52 @@ namespace WebApplicationFacturas.Controllers
             this.mapper = mapper;
         }
 
+        [HttpPost("Creacion-Detalle-Factura")]
+        public async Task<FacturasDTO> CreacionDetalleFacturas(FacturasDTO facturas)
+        {
+            var detallefactura = new FacturasDTO();
+            using (var transaccion = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var tablafactura = new Facturas();
+
+                    tablafactura.EmpleadoId = facturas.EmpleadoId;
+                    tablafactura.ClienteId = facturas.ClienteId;
+                    tablafactura.NombreCliente = facturas.NombreCliente;
+                    tablafactura.Estado = facturas.Estado;
+                    tablafactura.Total = facturas.Total;
+                    context.Facturas.Add(tablafactura);
+                    context.SaveChanges();
+
+                    foreach (var item in facturas.FacturasProductos)
+                    {
+                        var facturadetalle = new FacturasProductos();
+
+
+                        facturadetalle.FacturaId = tablafactura.Id;
+                        facturadetalle.ProductosId = item.ProductosId;
+                        facturadetalle.NombreProducto = item.NombreProducto;
+                        facturadetalle.Cantidad = item.Cantidad;
+                        facturadetalle.Precio = item.Precio;
+
+                    }
+                    context.SaveChanges();
+                    transaccion.Commit();
+
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+            return detallefactura;
+        }
         // GET api/factura
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RequestedFacturasDTO>>> Get()
         {
-            var facturas = await context.Facturas.Include("FacturasProductos").ToListAsync();
+            var facturas = await context.Facturas.ToListAsync();
             var pedidofacturasDTO = mapper.Map<List<RequestedFacturasDTO>>(facturas);
             return pedidofacturasDTO;
 
@@ -39,7 +80,7 @@ namespace WebApplicationFacturas.Controllers
         [HttpGet("{id}", Name = "ObtenerFactura")]
         public async Task<ActionResult<FacturasDTO>> Get(int id)
         {
-            var facturas = await context.Facturas.Include("FacturasProductos").FirstOrDefaultAsync(x => x.Id == id);
+            var facturas = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
 
             if (facturas == null)
             {

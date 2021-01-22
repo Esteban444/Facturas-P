@@ -16,6 +16,6 @@ namespace WebApplicationFacturas.Models
 
         public Clientes Cliente { get; set; }
         public Empleados Empleado { get; set; }
-        public virtual ICollection<FacturasProductos> FacturasProductos { get; set; }
+        public  ICollection<FacturasProductos> FacturasProductos { get; set; }
     }
 }

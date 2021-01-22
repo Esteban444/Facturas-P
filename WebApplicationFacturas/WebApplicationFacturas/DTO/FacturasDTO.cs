@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplicationFacturas.Models;
 
 namespace WebApplicationFacturas.DTO
 {
@@ -14,8 +15,7 @@ namespace WebApplicationFacturas.DTO
         public string Estado { get; set; }
         public int Total { get; set; }
 
-        //public ClientesDTO Cliente { get; set; }
-        //public EmpleadosDTO Empleado { get; set; }
-        //public virtual ICollection<FacturasProductos> FacturasProductos { get; set; }
+       
+        public  List<FacturasProductos> FacturasProductos { get; set; }
     }
 }

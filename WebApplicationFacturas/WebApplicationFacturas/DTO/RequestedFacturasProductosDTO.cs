@@ -10,6 +10,7 @@ namespace WebApplicationFacturas.DTO
         public int Id { get; set; }
         public int FacturaId { get; set; }
         public int ProductosId { get; set; }
+        public string NombreProducto { get; set; }
         public int Cantidad { get; set; }
         public float Precio { get; set; }
     }

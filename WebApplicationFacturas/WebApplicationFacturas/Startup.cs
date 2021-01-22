@@ -48,6 +48,9 @@ namespace WebApplicationFacturas
                 Configuration.CreateMap<Productos, ProductosDTO>().ReverseMap();
                 Configuration.CreateMap<CreacionProductosDTO, Productos>();
                 Configuration.CreateMap<Productos, RequestedProductosDTO>();
+                Configuration.CreateMap<FacturasProductos, FacturasProductosDTO>().ReverseMap();
+                Configuration.CreateMap<FacturasProductos, RequestedFacturasProductosDTO>();
+                Configuration.CreateMap<CreacionFacturasProductosDTO, FacturasProductos>();
                 Configuration.CreateMap<Facturas, FacturasDTO>().ReverseMap();
                 Configuration.CreateMap<Facturas, RequestedFacturasDTO>();
                 Configuration.CreateMap<CreacionFacturasDTO, Facturas>();
