@@ -68,6 +68,10 @@ namespace WebApplicationFacturas.Context
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Telefono)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<Empleados>(entity =>
@@ -76,7 +80,7 @@ namespace WebApplicationFacturas.Context
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Contraseña)
+                entity.Property(e => e.Contrasena)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -110,6 +114,11 @@ namespace WebApplicationFacturas.Context
                     .IsUnicode(false);
 
                 entity.Property(e => e.Email)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Nit)
+                    .HasColumnName("NIT")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -150,7 +159,9 @@ namespace WebApplicationFacturas.Context
 
             modelBuilder.Entity<FacturasProductos>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.NombreProducto)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Facturas)
                     .WithMany(p => p.FacturasProductos)

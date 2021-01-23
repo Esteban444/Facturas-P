@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplicationFacturas.DTO.Requests;
 using WebApplicationFacturas.Models;
 
 namespace WebApplicationFacturas.DTO
@@ -16,6 +17,6 @@ namespace WebApplicationFacturas.DTO
         public int Total { get; set; }
 
        
-        public  List<FacturasProductos> FacturasProductos { get; set; }
+        public  List<FacturasProductosRequestDTO> FacturasProductos { get; set; }
     }
 }

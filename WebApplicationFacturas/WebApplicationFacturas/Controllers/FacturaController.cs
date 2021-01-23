@@ -27,40 +27,32 @@ namespace WebApplicationFacturas.Controllers
         }
 
         [HttpPost("Creacion-Detalle-Factura")]
-        public async Task<FacturasDTO> CreacionDetalleFacturas(FacturasDTO facturas)
+        public async Task<ActionResult<FacturasDTO>> CreacionDetalleFacturas(FacturasDTO facturas)
         {
             var detallefactura = new FacturasDTO();
             using (var transaccion = context.Database.BeginTransaction())
             {
                 try
                 {
-                    var tablafactura = new Facturas();
+                    var tablafactura = mapper.Map<Facturas>(facturas);
+                    if (!context.Empleados.Any(x => x.Id == tablafactura.EmpleadoId)) return BadRequest("El empleado no existe");
+                    if (!context.Clientes.Any(x => x.Id == tablafactura.ClienteId)) return BadRequest("El cliente no existe");
 
-                    tablafactura.EmpleadoId = facturas.EmpleadoId;
-                    tablafactura.ClienteId = facturas.ClienteId;
-                    tablafactura.NombreCliente = facturas.NombreCliente;
-                    tablafactura.Estado = facturas.Estado;
-                    tablafactura.Total = facturas.Total;
                     context.Facturas.Add(tablafactura);
                     context.SaveChanges();
 
                     foreach (var item in facturas.FacturasProductos)
                     {
-                        var facturadetalle = new FacturasProductos();
-
-
+                        var facturadetalle = mapper.Map<FacturasProductos>(item);
                         facturadetalle.FacturaId = tablafactura.Id;
-                        facturadetalle.ProductosId = item.ProductosId;
-                        facturadetalle.NombreProducto = item.NombreProducto;
-                        facturadetalle.Cantidad = item.Cantidad;
-                        facturadetalle.Precio = item.Precio;
 
+                        context.FacturasProductos.Add(facturadetalle);
                     }
                     context.SaveChanges();
                     transaccion.Commit();
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
 
                 }

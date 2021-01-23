@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas
 {
@@ -49,6 +50,7 @@ namespace WebApplicationFacturas
                 Configuration.CreateMap<CreacionProductosDTO, Productos>();
                 Configuration.CreateMap<Productos, RequestedProductosDTO>();
                 Configuration.CreateMap<FacturasProductos, FacturasProductosDTO>().ReverseMap();
+                Configuration.CreateMap<FacturasProductos, FacturasProductosRequestDTO>().ReverseMap();
                 Configuration.CreateMap<FacturasProductos, RequestedFacturasProductosDTO>();
                 Configuration.CreateMap<CreacionFacturasProductosDTO, FacturasProductos>();
                 Configuration.CreateMap<Facturas, FacturasDTO>().ReverseMap();
