@@ -54,13 +54,13 @@ namespace WebApplicationFacturas.Controllers
        
         // POST api/empresa
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] EmpresasCreacionDTO empresascreacionDTO)
+        public async Task<Empresas> Post([FromBody] EmpresasCreacionDTO empresascreacionDTO)
         {
             var empresa = mapper.Map<Empresas>(empresascreacionDTO);
             context.Add(empresa);
             await context.SaveChangesAsync();
             var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
-            return new CreatedAtRouteResult("ObtenerEmpresa", new { id = empresa.Id }, empresaDTO);
+            return empresa;
         }
         
         // PUT api/empresa/5
