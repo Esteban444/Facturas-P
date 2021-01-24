@@ -159,6 +159,8 @@ namespace WebApplicationFacturas.Context
 
             modelBuilder.Entity<FacturasProductos>(entity =>
             {
+                entity.Property(e => e.Id).UseIdentityColumn();
+
                 entity.Property(e => e.NombreProducto)
                     .HasMaxLength(50)
                     .IsUnicode(false);

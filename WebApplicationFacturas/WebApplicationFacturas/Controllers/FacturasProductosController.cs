@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebApplicationFacturas.Context;
 using WebApplicationFacturas.DTO;
+using WebApplicationFacturas.DTO.Requests;
 using WebApplicationFacturas.Helpers;
 using WebApplicationFacturas.Models;
 
@@ -28,15 +29,15 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/facturasproductos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedFacturasProductosDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<FacturasProductosRequestDTO>>> Get()
         {
            var facturasproductos = await context.FacturasProductos.ToListAsync();
-            var pedidofacturasproductos = mapper.Map<List<RequestedFacturasProductosDTO>>(facturasproductos);
-            return Ok(pedidofacturasproductos);
+            var peticionfacturasproductos = mapper.Map<List<FacturasProductosRequestDTO>>(facturasproductos);
+            return Ok(peticionfacturasproductos);
         }
         // GET api/facturasproductos/1
         [HttpGet("{id}", Name = "ObtenerFacturasProductos")]
-        public async Task<ActionResult<FacturasProductosDTO>> Get(int id)
+        public async Task<ActionResult<FacturasProductosBase>> Get(int id)
         {
             var facturasproductos = await context.FacturasProductos.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -44,24 +45,24 @@ namespace WebApplicationFacturas.Controllers
             {
                 return NotFound("El detalle de factura no existe");
             }
-            var facturasproductosDTO = mapper.Map<FacturasProductosDTO>(facturasproductos);
-            return facturasproductosDTO;
+            var facturasproductosb = mapper.Map<FacturasProductosBase>(facturasproductos);
+            return facturasproductosb;
 
         }
         // POST api/facturaproductos
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreacionFacturasProductosDTO facturasProductosdto)
+        public async Task<ActionResult> Post([FromBody] FacturasProductosBase facturasProducto)
         {
-            var facturasproductos = mapper.Map<FacturasProductos>(facturasProductosdto);
-            context.Add(facturasproductos);
+            var facturasproductosbd = mapper.Map<FacturasProductos>(facturasProducto);
+            context.Add(facturasproductosbd);
             await context.SaveChangesAsync();
-            var facturasproductosDTO = mapper.Map<FacturasProductosDTO>(facturasproductos);
-            return new CreatedAtRouteResult("ObtenerFacturasProductos", new { id = facturasproductos.Id }, facturasproductosDTO);
+            var facturasproductos = mapper.Map<FacturasProductosBase>(facturasproductosbd);
+            return new CreatedAtRouteResult("ObtenerFacturasProductos", new { id = facturasproductosbd.Id }, facturasproductos);
         }
 
         // PUT api/facturaproductos/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] FacturasProductosDTO facturasProductos)
+        public async Task<ActionResult> Put(int id, [FromBody] FacturasProductosUpdateRequestDTO facturasProductos)
         {
             try
             {
@@ -86,23 +87,27 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH api/facturaproductos/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] FacturasProductosDTO facturasProductosDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] FacturasProductosBase facturasProducto)
         {
            
-            var properties = new UpdateMapperProperties<FacturasProductos, FacturasProductosDTO>();
+            var properties = new UpdateMapperProperties<FacturasProductos, FacturasProductosBase>();
             var facturasproductos = context.FacturasProductos.Find(id);
-            var result = await properties.MapperUpdate(facturasproductos, facturasProductosDTO);
+            var result = await properties.MapperUpdate(facturasproductos, facturasProducto);
             await context.SaveChangesAsync();
             return Ok(result);
         }
         // DELETE api/facturaproductos/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<FacturasProductos>> Delete(int id)
+        public async Task<ActionResult<FacturasProductosBase>> Delete(int id)
         {
             var facturaproductos = await context.FacturasProductos.FirstOrDefaultAsync(x => x.FacturaId == id);
 
             if (facturaproductos != null)
             {
+                var factura = context.FacturasProductos.Where(e => e.FacturaId == id).SingleOrDefault(a => a.FacturaId == id);
+                var producto = context.FacturasProductos.Where(e => e.ProductosId == id).SingleOrDefault(a => a.ProductosId == id);
+
+
                 context.Remove(facturaproductos);
                 await context.SaveChangesAsync();
                 return Ok(facturaproductos);

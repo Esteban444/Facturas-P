@@ -7,9 +7,8 @@ using WebApplicationFacturas.Models;
 
 namespace WebApplicationFacturas.DTO
 {
-    public class FacturasDTO
+    public class FacturasBase
     {
-        //public int Id { get; set; }
         public int EmpleadoId { get; set; }
         public int ClienteId { get; set; }
         public string NombreCliente { get; set; }

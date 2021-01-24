@@ -10,6 +10,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -28,16 +29,16 @@ namespace WebApplicationFacturas.Controllers
         
         // GET api/empleado
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedEmpleadosDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<EmpleadosRequestDTO>>> Get()
         {
             var empleados = await context.Empleados.Include("Cargos").ToListAsync();
-            var pedidoempleadosDTO = mapper.Map<List<RequestedEmpleadosDTO>>(empleados);
-            return pedidoempleadosDTO;
+            var peticionempleados = mapper.Map<List<EmpleadosRequestDTO>>(empleados);
+            return peticionempleados;
             
         }
         // GET api/empleado/1
         [HttpGet("{id}", Name = "ObtenerEmpleado")]
-        public async Task<ActionResult<EmpleadosDTO>> Get(int id)
+        public async Task<ActionResult<EmpleadosBase>> Get(int id)
         {
             var empleado = await context.Empleados.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -45,24 +46,23 @@ namespace WebApplicationFacturas.Controllers
             {
                 return NotFound("El empleado no esta en la base de datos");
             }
-            var empleadoDTO = mapper.Map<EmpleadosDTO>(empleado);
-            return empleadoDTO;
+            var empleadob = mapper.Map<EmpleadosBase>(empleado);
+            return empleadob;
 
         }
         // POST api/empleado
         [HttpPost]
-        public async Task<Empleados> Post([FromBody] CreacionEmpleadosDTO creacionEmpleadosDTO)
+        public async Task<EmpleadosBase> Post([FromBody] EmpleadosBase empleados)
         {
-            var empleado = mapper.Map<Empleados>(creacionEmpleadosDTO);
+            var empleado = mapper.Map<Empleados>(empleados);
             context.Add(empleado);
             await context.SaveChangesAsync();
-            var empleadoDTO = mapper.Map<EmpleadosDTO>(empleado);
-            return empleado;
+            return empleados;
         }
 
         // PUT api/empleado/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] EmpleadosDTO empleado)
+        public async Task<ActionResult> Put(int id, [FromBody] EmpleadosUpdateRequestDTO empleado)
         {
             try
             {
@@ -87,27 +87,33 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] EmpleadosDTO empleadosDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] EmpleadosBase empleados)
         {
            
-            var properties = new UpdateMapperProperties<Empleados, EmpleadosDTO>();
+            var properties = new UpdateMapperProperties<Empleados, EmpleadosBase>();
             var empleado = context.Empleados.Find(id);
-            var result = await properties.MapperUpdate(empleado, empleadosDTO);
+            var result = await properties.MapperUpdate(empleado, empleados);
             await context.SaveChangesAsync();
             return Ok(result);
         }
 
         // DELETE api/empleado/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Empleados>> Delete(int id)
+        public async Task<ActionResult<EmpleadosBase>> Delete(int id)
         {
-            var empleado = await context.Empleados.FirstOrDefaultAsync(x => x.Id == id);
+            var empleadobd = await context.Empleados.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (empleado != null)
+            if (empleadobd != null)
             {
-                context.Remove(empleado);
+                var cargo = context.Cargos.Where(e => e.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
+
+                var empleados = context.Empleados.Where(e => e.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
+                
+                var empleadob = context.Facturas.Where(f => f.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
+                
+                context.Remove(empleadobd);
                 await context.SaveChangesAsync();
-                return Ok(empleado);
+                return Ok(empleadobd);
                 
             }
             else

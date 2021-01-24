@@ -59,7 +59,7 @@ namespace WebApplicationFacturas.Controllers
             var empresa = mapper.Map<Empresas>(empresascreacionDTO);
             context.Add(empresa);
             await context.SaveChangesAsync();
-            var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
+            //var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
             return empresa;
         }
         

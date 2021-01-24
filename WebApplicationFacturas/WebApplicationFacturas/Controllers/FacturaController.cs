@@ -10,6 +10,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -27,9 +28,9 @@ namespace WebApplicationFacturas.Controllers
         }
 
         [HttpPost("Creacion-Detalle-Factura")]
-        public async Task<ActionResult<FacturasDTO>> CreacionDetalleFacturas(FacturasDTO facturas)
+        public async Task<ActionResult<FacturasBase>> CreacionDetalleFacturas(FacturasBase facturas)
         {
-            var detallefactura = new FacturasDTO();
+            var detallefactura = new FacturasBase();
             using (var transaccion = context.Database.BeginTransaction())
             {
                 try
@@ -44,6 +45,9 @@ namespace WebApplicationFacturas.Controllers
                     foreach (var item in facturas.FacturasProductos)
                     {
                         var facturadetalle = mapper.Map<FacturasProductos>(item);
+                        if (!context.Facturas.Any(x => x.Id == facturadetalle.FacturaId)) return BadRequest("la factura no existe");
+                        if (!context.Productos.Any(x => x.Id == facturadetalle.ProductosId)) return BadRequest("El producto no existe");
+
                         facturadetalle.FacturaId = tablafactura.Id;
 
                         context.FacturasProductos.Add(facturadetalle);
@@ -61,16 +65,16 @@ namespace WebApplicationFacturas.Controllers
         }
         // GET api/factura
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedFacturasDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<FacturasRequestsDTO>>> Get()
         {
             var facturas = await context.Facturas.ToListAsync();
-            var pedidofacturasDTO = mapper.Map<List<RequestedFacturasDTO>>(facturas);
-            return pedidofacturasDTO;
+            var peticionesfacturas = mapper.Map<List<FacturasRequestsDTO>>(facturas);
+            return peticionesfacturas;
 
         }
         // GET api/factura/1
         [HttpGet("{id}", Name = "ObtenerFactura")]
-        public async Task<ActionResult<FacturasDTO>> Get(int id)
+        public async Task<ActionResult<FacturasBase>> Get(int id)
         {
             var facturas = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -78,31 +82,32 @@ namespace WebApplicationFacturas.Controllers
             {
                 return NotFound("El factura no existe");
             }
-            var facturasDTO = mapper.Map<FacturasDTO>(facturas);
-            return facturasDTO;
+            var facturasb = mapper.Map<FacturasBase>(facturas);
+            return facturasb;
 
         }
         // POST api/factura
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreacionFacturasDTO creacionFacturasDTO)
+        public async Task<FacturasBase> Post([FromBody] FacturasBase Facturas)
         {
-            var factura = mapper.Map<Facturas>(creacionFacturasDTO);
+            var factura = mapper.Map<Facturas>(Facturas);
             context.Add(factura);
             await context.SaveChangesAsync();
-            var facturasDTO = mapper.Map<FacturasDTO>(factura);
-            return new CreatedAtRouteResult("ObtenerFactura", new { id = factura.Id }, facturasDTO);
+            return Facturas;
         }
 
         // PUT api/factura/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] FacturasDTO facturas)
+        public async Task<ActionResult> Put(int id, [FromBody] FacturasUpdateRequestDTO facturas)
         {
             try
             {
                 var facturaBd = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
                 if (facturaBd != null)
                 {
+                   
                     mapper.Map(facturas, facturaBd);
+                    
                     await context.SaveChangesAsync();
                     return Ok(facturas);
                 }
@@ -119,10 +124,10 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH api/factura/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] FacturasDTO facturasDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] FacturasBase facturasDTO)
         {
             
-            var properties = new UpdateMapperProperties<Facturas, FacturasDTO>();
+            var properties = new UpdateMapperProperties<Facturas, FacturasBase>();
             var facturas = context.Facturas.Find(id);
             var result = await properties.MapperUpdate(facturas, facturasDTO);
             await context.SaveChangesAsync();
@@ -130,12 +135,14 @@ namespace WebApplicationFacturas.Controllers
         }
         // DELETE api/factura/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Facturas>> Delete(int id)
+        public async Task<ActionResult<FacturasBase>> Delete(int id)
         {
             var facturas = await context.Facturas.FirstOrDefaultAsync(x => x.Id == id);
 
             if (facturas != null)
             {
+                var empleadobd = context.Facturas.SingleOrDefault(a => a.EmpleadoId == id);
+                var clientebd = context.Facturas.SingleOrDefault(a => a.ClienteId == id);
                 context.Remove(facturas);
                 await context.SaveChangesAsync();
                 return Ok(facturas);
