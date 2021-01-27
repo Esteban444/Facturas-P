@@ -105,7 +105,7 @@ namespace WebApplicationFacturas.Controllers
 
             if (empleadobd != null)
             {
-                var cargo = context.Cargos.Where(e => e.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
+                var cargo = context.Cargos.Where(c => c.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
 
                 var empleados = context.Empleados.Where(e => e.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
                 

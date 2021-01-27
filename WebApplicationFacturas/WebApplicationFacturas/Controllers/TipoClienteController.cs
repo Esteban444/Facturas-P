@@ -10,6 +10,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -28,16 +29,16 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/tipocliente
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedTipoClientesDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<TipoClientesRequestDTO>>> Get()
         {
             var tipocliente = await context.TipoClientes.ToListAsync();
-            var pedidotipoclienteDTO = mapper.Map<List<RequestedTipoClientesDTO>>(tipocliente);
-            return pedidotipoclienteDTO;
+            var tipoclienteDTO = mapper.Map<List<TipoClientesRequestDTO>>(tipocliente);
+            return tipoclienteDTO;
 
         }
         // GET api/tipocliente/1
         [HttpGet("{id}", Name = "ObtenerTipoCliente")]
-        public async Task<ActionResult<TipoClientesDTO>> Get(int id)
+        public async Task<ActionResult<TipoClientesBase>> Get(int id)
         {
             var tipoclientesBd = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -45,24 +46,23 @@ namespace WebApplicationFacturas.Controllers
             {
                 return NotFound("El tipo cliente no existe");
             }
-            var tipoclientesDTO = mapper.Map<TipoClientesDTO>(tipoclientesBd);
-            return tipoclientesDTO;
+            var tipoclientesb = mapper.Map<TipoClientesBase>(tipoclientesBd);
+            return tipoclientesb;
 
         }
         // POST api/tipocliente
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreaciontipoclientesDTO creaciontipoclientesDTO)
+        public async Task<TipoClientesBase> Post([FromBody] TipoClientesBase tipoclientes)
         {
-            var tipocliente = mapper.Map<TipoClientes>(creaciontipoclientesDTO);
+            var tipocliente = mapper.Map<TipoClientes>(tipoclientes);
             context.Add(tipocliente);
             await context.SaveChangesAsync();
-            var tipoclienteDTO = mapper.Map<TipoClientesDTO>(tipocliente);
-            return new CreatedAtRouteResult("ObtenerTipoCliente", new { id = tipocliente.Id }, tipoclienteDTO);
+            return tipoclientes;
         }
 
         // PUT api/tipocliente/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] TipoClientesDTO tipoclientes)
+        public async Task<ActionResult> Put(int id, [FromBody] TipoClientesUpdateRequestDTO tipoclientes)
         {
             try
             {
@@ -87,10 +87,10 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH api/tipocliente/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] TipoClientesDTO tipoClientesDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] TipoClientesBase tipoClientesDTO)
         {
             
-            var properties = new UpdateMapperProperties<TipoClientes, TipoClientesDTO>();
+            var properties = new UpdateMapperProperties<TipoClientes, TipoClientesBase>();
             var tipocliente = context.TipoClientes.Find(id);
             var result = await properties.MapperUpdate(tipocliente, tipoClientesDTO);
             await context.SaveChangesAsync();
@@ -98,7 +98,7 @@ namespace WebApplicationFacturas.Controllers
         }
         // DELETE api/tipocliente/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<TipoClientes>> Delete(int id)
+        public async Task<ActionResult<TipoClientesBase>> Delete(int id)
         {
             var tipoclienteBd = await context.TipoClientes.FirstOrDefaultAsync(x => x.Id == id);
 

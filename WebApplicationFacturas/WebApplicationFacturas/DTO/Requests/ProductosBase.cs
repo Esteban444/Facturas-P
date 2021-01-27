@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebApplicationFacturas.DTO
+namespace WebApplicationFacturas.DTO.Requests
 {
-    public class CreacionProductosDTO
+    public class ProductosBase
     {
-        [Required]
         public string Nombre { get; set; }
         public int? Cantidad { get; set; }
         public int? PrecioCompra { get; set; }

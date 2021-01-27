@@ -36,6 +36,7 @@ namespace WebApplicationFacturas
             {
                 Configuration.CreateMap<Empresas, EmpresasBase>().ReverseMap();
                 Configuration.CreateMap<Empresas, EmpresasRequestDTO>();
+                Configuration.CreateMap<EmpresasUpdateRequestDTO, Empresas>();
 
                 Configuration.CreateMap<Empleados, EmpleadosBase>().ReverseMap();
                 Configuration.CreateMap<EmpleadosUpdateRequestDTO, Empleados>();
@@ -43,14 +44,15 @@ namespace WebApplicationFacturas
 
                 Configuration.CreateMap<Cargos, CargosBase>().ReverseMap();
                 Configuration.CreateMap<Cargos, CargosRequestDTO>();
+                Configuration.CreateMap<CargosUpdateRequestDTO, Cargos>();
 
-                Configuration.CreateMap<Categorias, CategoriasDTO>().ReverseMap();
-                Configuration.CreateMap<Categorias, RequestedCategoriasDTO>();
-                Configuration.CreateMap<CreacionCategoriasDTO, Categorias>();
+                Configuration.CreateMap<Categorias, CategoriasBase>().ReverseMap();
+                Configuration.CreateMap<Categorias, CategoriasRequestDTO>();
+                Configuration.CreateMap<CategoriasUpdateRequestDTO, Categorias>();
 
-                Configuration.CreateMap<Productos, ProductosDTO>().ReverseMap();
-                Configuration.CreateMap<CreacionProductosDTO, Productos>();
-                Configuration.CreateMap<Productos, RequestedProductosDTO>();
+                Configuration.CreateMap<Productos, ProductosBase>().ReverseMap();
+                Configuration.CreateMap<ProductosUpdateRequestDTO, Productos>();
+                Configuration.CreateMap<Productos, ProductosRequestDTO>();
 
                 Configuration.CreateMap<FacturasProductos, FacturasProductosBase>().ReverseMap();
                 Configuration.CreateMap<FacturasProductos, FacturasProductosRequestDTO>();
@@ -60,13 +62,13 @@ namespace WebApplicationFacturas
                 Configuration.CreateMap<Facturas, FacturasRequestsDTO>();
                 Configuration.CreateMap<FacturasUpdateRequestDTO, Facturas>();
 
-                Configuration.CreateMap<Clientes, ClientesDTO>().ReverseMap();
-                Configuration.CreateMap<CreacionClientesDTO, Clientes>();
-                Configuration.CreateMap<Clientes, RequestedClientesDTO>();
+                Configuration.CreateMap<Clientes, ClientesBase>().ReverseMap();
+                Configuration.CreateMap<ClientesUpdateRequestDTO, Clientes>();
+                Configuration.CreateMap<Clientes, ClientesRequestDTO>();
 
-                Configuration.CreateMap<TipoClientes, TipoClientesDTO>().ReverseMap();
-                Configuration.CreateMap<CreaciontipoclientesDTO, TipoClientes>();
-                Configuration.CreateMap<TipoClientes, RequestedTipoClientesDTO>();
+                Configuration.CreateMap<TipoClientes, TipoClientesBase>().ReverseMap();
+                Configuration.CreateMap<TipoClientesUpdateRequestDTO, TipoClientes>();
+                Configuration.CreateMap<TipoClientes, TipoClientesRequestDTO>();
 
             },typeof(Startup));
 

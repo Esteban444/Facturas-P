@@ -110,7 +110,7 @@ namespace WebApplicationFacturas.Controllers
 
             if (empresa != null)
             {
-                //var empleado = context.Empleados.Where(c => c.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
+                var empresas = context.Empleados.Where(c => c.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
                 context.Empresas.Remove(empresa);
                 await context.SaveChangesAsync();
                 return Ok(empresa);

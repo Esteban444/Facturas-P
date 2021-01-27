@@ -10,6 +10,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -28,41 +29,40 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/categoria
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedCategoriasDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<CategoriasRequestDTO>>> Get()
         {
             var categoria = await context.Categorias.ToListAsync();
-            var pedidocategoriasDTO = mapper.Map<List<RequestedCategoriasDTO>>(categoria);
-            return pedidocategoriasDTO;
+            var categoriasDTO = mapper.Map<List<CategoriasRequestDTO>>(categoria);
+            return categoriasDTO;
 
         }
         // GET api/categoria/1
         [HttpGet("{id}", Name = "ObtenerCategoria")]
-        public async Task<ActionResult<CategoriasDTO>> Get(int id)
+        public async Task<ActionResult<CategoriasBase>> Get(int id)
         {
-            var categoria = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
+            var categoriaBd = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (categoria == null)
+            if (categoriaBd == null)
             {
                 return BadRequest("La categoria no existe en la empresa");
             }
-            var categoriaDTO = mapper.Map<CategoriasDTO>(categoria);
-            return categoriaDTO;
+            var categoria = mapper.Map<CategoriasBase>(categoriaBd);
+            return categoria;
 
         }
         // POST api/categoria
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] CreacionCategoriasDTO creacionCategoriasDTO)
+        public async Task<CategoriasBase> Post([FromBody] CategoriasBase categoriasBase)
         {
-            var categoria = mapper.Map<Categorias>(creacionCategoriasDTO);
+            var categoria = mapper.Map<Categorias>(categoriasBase);
             context.Add(categoria);
             await context.SaveChangesAsync();
-            var categoriasDTO = mapper.Map<CategoriasDTO>(categoria);
-            return new CreatedAtRouteResult("ObtenerCategoria", new { id = categoria.Id }, categoriasDTO);
+            return categoriasBase;
         }
 
         // PUT api/categorias/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] CategoriasDTO categorias)
+        public async Task<ActionResult> Put(int id, [FromBody] CategoriasUpdateRequestDTO categorias)
         {
             try
             {
@@ -87,19 +87,19 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH api/categorias/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] CategoriasDTO categoriasDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] CategoriasBase categoriasb)
         {
             
-            var properties = new UpdateMapperProperties<Categorias, CategoriasDTO>();
+            var properties = new UpdateMapperProperties<Categorias, CategoriasBase>();
             var categoria = context.Categorias.Find(id);
-            var result = await properties.MapperUpdate(categoria, categoriasDTO);
+            var result = await properties.MapperUpdate(categoria, categoriasb);
             await context.SaveChangesAsync();
 
             return Ok(result);
         }
         // DELETE api/categorias/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Categorias>> Delete(int id)
+        public async Task<ActionResult<CategoriasBase>> Delete(int id)
         {
             var categoriaBd = await context.Categorias.FirstOrDefaultAsync(x => x.Id == id);
 

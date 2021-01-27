@@ -10,6 +10,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -28,40 +29,40 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/producto
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedProductosDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductosRequestDTO>>> Get()
         {
             var productos = await context.Productos.Include ("Categorias").ToListAsync();
-            var pedidoproductosDTO = mapper.Map<List<RequestedProductosDTO>>(productos);
-            return pedidoproductosDTO;
+            var productosDTO = mapper.Map<List<ProductosRequestDTO>>(productos);
+            return productosDTO;
 
         }
         // GET api/producto/1
         [HttpGet("{id}", Name = "ObtenerProducto")]
-        public async Task<ActionResult<ProductosDTO>> Get(int id)
+        public async Task<ActionResult<ProductosBase>> Get(int id)
         {
-            var producto = await context.Productos.Include("Categorias").FirstOrDefaultAsync(x => x.Id == id);
+            var productoBd = await context.Productos.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (producto == null)
+            if (productoBd == null)
             {
                 return NotFound("El producto no existe");
             }
-            var productoDTO = mapper.Map<ProductosDTO>(producto);
-            return productoDTO;
+            var productob = mapper.Map<ProductosBase>(productoBd);
+            return productob;
 
         }
         // POST api/producto
         [HttpPost]
-        public async Task<Productos> Post([FromBody] CreacionProductosDTO creacionProductosDTO)
+        public async Task<ProductosBase> Post([FromBody] ProductosBase Producto)
         {
-            var productos = mapper.Map<Productos>(creacionProductosDTO);
+            var productos = mapper.Map<Productos>(Producto);
             context.Add(productos);
             await context.SaveChangesAsync();
-            return productos;
+            return Producto;
         }
 
         // PUT api/producto/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] ProductosDTO producto)
+        public async Task<ActionResult> Put(int id, [FromBody] ProductosUpdateRequestDTO producto)
         {
            try
            {
@@ -86,19 +87,19 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH api/producto/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id,[FromBody] ProductosDTO productosDTO )
+        public async Task<ActionResult> Patch(int id,[FromBody] ProductosBase productosb )
         {
-            var properties = new UpdateMapperProperties<Productos, ProductosDTO>();
+            var properties = new UpdateMapperProperties<Productos, ProductosBase>();
             var producto = context.Productos.Find(id);
 
-            var result = await properties.MapperUpdate(producto, productosDTO);
+            var result = await properties.MapperUpdate(producto, productosb);
             producto.Categorias = context.Categorias.Find(producto.CategoriaId);
             await context.SaveChangesAsync();
             return Ok(result);
         }
         // DELETE api/producto/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Productos>> Delete(int id)
+        public async Task<ActionResult<ProductosBase>> Delete(int id)
         {
             var producto = await context.Productos.FirstOrDefaultAsync(x => x.Id == id);
 

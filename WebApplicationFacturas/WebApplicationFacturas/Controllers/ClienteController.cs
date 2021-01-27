@@ -10,6 +10,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -28,16 +29,16 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/cliente
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedClientesDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<ClientesRequestDTO>>> Get()
         {
             var clientes = await context.Clientes.Include("TipoClientes").ToListAsync();
-            var pedidoclientesDTO = mapper.Map<List<RequestedClientesDTO>>(clientes);
-            return pedidoclientesDTO;
+            var clientesb = mapper.Map<List<ClientesRequestDTO>>(clientes);
+            return clientesb;
 
         }
         // GET api/cliente/1
         [HttpGet("{id}", Name = "ObtenerCliente")]
-        public async Task<ActionResult<ClientesDTO>> Get(int id)
+        public async Task<ActionResult<ClientesBase>> Get(int id)
         {
             var clienteBd = await context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -45,28 +46,27 @@ namespace WebApplicationFacturas.Controllers
             {
                 return NotFound("El cliente no existe");
             }
-            var clienteDTO = mapper.Map<ClientesDTO>(clienteBd);
-            return clienteDTO;
+            var clienteb = mapper.Map<ClientesBase>(clienteBd);
+            return clienteb;
 
         }
         // POST api/cliente
         [HttpPost]
-        public async Task<Clientes> Post([FromBody] CreacionClientesDTO creacionClientesDTO)
+        public async Task<ClientesBase> Post([FromBody] ClientesBase clientesb)
         {
-            var cliente = mapper.Map<Clientes>(creacionClientesDTO);
+            var cliente = mapper.Map<Clientes>(clientesb);
             context.Add(cliente);
             await context.SaveChangesAsync();
-            var clienteDTO = mapper.Map<ClientesDTO>(cliente);
-            return cliente;
+            return clientesb;
         }
 
         // PUT api/cliente/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] ClientesDTO clientes)
+        public async Task<ActionResult> Put(int id, [FromBody] ClientesUpdateRequestDTO clientes)
         {
             try
             {
-                var clienteBd = await context.Clientes.Include("TipoClientes").FirstOrDefaultAsync(x => x.Id == id);
+                var clienteBd = await context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
                 if (clienteBd != null)
                 {
                     mapper.Map(clientes, clienteBd);
@@ -88,23 +88,24 @@ namespace WebApplicationFacturas.Controllers
 
         // PATCH api/cliente/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] ClientesDTO clientesDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] ClientesBase clientesb)
         {
             
-            var properties = new UpdateMapperProperties<Clientes, ClientesDTO>();
+            var properties = new UpdateMapperProperties<Clientes, ClientesBase>();
             var cliente = context.Clientes.Find(id);
-            var result = await properties.MapperUpdate(cliente, clientesDTO);
+            var result = await properties.MapperUpdate(cliente, clientesb);
             await context.SaveChangesAsync();
             return Ok(result);
         }
         // DELETE api/cliente/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Clientes>> Delete(int id)
+        public async Task<ActionResult<ClientesBase>> Delete(int id)
         {
             var clientesBd = await context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
 
             if (clientesBd != null)
             {
+                var cliente = context.TipoClientes.Where(f => f.ClienteId == id).SingleOrDefault(a => a.ClienteId == id);
                 context.Clientes.Remove(clientesBd);
                 await context.SaveChangesAsync();
                 return Ok(clientesBd);
