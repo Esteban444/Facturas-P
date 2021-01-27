@@ -10,9 +10,8 @@ namespace WebApplicationFacturas.Models
     public class Cargos
     {
         public int Id { get; set; }
-        [Required]
         public string Nombre { get; set; }
-       public int EmpleadoId { get; set; }
+       public int? EmpleadoId { get; set; }
         public virtual Empleados Empleado { get; set; }
     }
 }

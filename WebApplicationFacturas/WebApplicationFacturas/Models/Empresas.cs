@@ -11,7 +11,6 @@ namespace WebApplicationFacturas.Models
     public class Empresas
     {
         public int Id { get; set; }
-         [Required]
         public string Nombre { get; set; }
         public string Direccion { get; set; }
         public string Telefono { get; set; }

@@ -4,12 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebApplicationFacturas.DTO
+namespace WebApplicationFacturas.DTO.Requests
 {
-    public class CreacioncargosDTO
+    public class CargosBase
     {
-        [Required]
         public string Nombre { get; set; }
-        public int EmpleadoId { get; set; }
+        public int? EmpleadoId { get; set; }
+
+        
     }
 }

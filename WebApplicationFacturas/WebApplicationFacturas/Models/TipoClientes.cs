@@ -11,7 +11,7 @@ namespace WebApplicationFacturas.Models
         public int Id { get; set;}
         [Required]
         public string TipoCliente { get; set; }
-        public int ClienteId { get; set; }
+        public int? ClienteId { get; set; }
 
         public Clientes Cliente { get; set; }
     }

@@ -11,6 +11,7 @@ using WebApplicationFacturas.Context;
 using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
+using WebApplicationFacturas.DTO.Requests;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -29,16 +30,16 @@ namespace WebApplicationFacturas.Controllers
 
         // GET api/empresa
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RequestedEmpresasDTO>>> Get()
+        public async Task<ActionResult<IEnumerable<EmpresasRequestDTO>>> Get()
         {
             var empresas = await context.Empresas.Include("Empleados").ToListAsync();
-            var pedidoempresasDTO = mapper.Map<List<RequestedEmpresasDTO>>(empresas);
-            return pedidoempresasDTO;
+            var empresasDTO = mapper.Map<List<EmpresasRequestDTO>>(empresas);
+            return empresasDTO;
         }
 
         // GET api/empresa/1
         [HttpGet("{id}", Name = "ObtenerEmpresa")]
-        public async Task<ActionResult<EmpresasDTO>> Get(int id)
+        public async Task<ActionResult<EmpresasBase>> Get(int id)
         {
             var empresa = await context.Empresas.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -47,25 +48,25 @@ namespace WebApplicationFacturas.Controllers
                 return NotFound("La empresa no existe en la base de datos");
             }
 
-            var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
-            return empresaDTO ;
+            var empresab = mapper.Map<EmpresasBase>(empresa);
+            return empresab ;
 
         }
        
         // POST api/empresa
         [HttpPost]
-        public async Task<Empresas> Post([FromBody] EmpresasCreacionDTO empresascreacionDTO)
+        public async Task<EmpresasBase> Post([FromBody] EmpresasBase empresasb)
         {
-            var empresa = mapper.Map<Empresas>(empresascreacionDTO);
+            var empresa = mapper.Map<Empresas>(empresasb);
             context.Add(empresa);
             await context.SaveChangesAsync();
             //var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
-            return empresa;
+            return empresasb;
         }
         
         // PUT api/empresa/5
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] EmpresasDTO empresas)
+        public async Task<ActionResult> Put(int id, [FromBody] EmpresasUpdateRequestDTO empresas)
         {
             
             try
@@ -90,12 +91,12 @@ namespace WebApplicationFacturas.Controllers
         
         // PATCH api/cargos/1
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(int id, [FromBody] EmpresasDTO empresasDTO)
+        public async Task<ActionResult> Patch(int id, [FromBody] EmpresasBase empresasb)
         {
 
-            var properties = new UpdateMapperProperties<Empresas, EmpresasDTO>();
+            var properties = new UpdateMapperProperties<Empresas, EmpresasBase>();
             var empresa = context.Empresas.Find(id);
-            var result = await properties.MapperUpdate(empresa, empresasDTO);
+            var result = await properties.MapperUpdate(empresa, empresasb);
             await context.SaveChangesAsync();
             
             return Ok(result);
@@ -103,12 +104,13 @@ namespace WebApplicationFacturas.Controllers
         
         // DELETE api/empresa/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Empresas>> Delete(int id)
+        public async Task<ActionResult<EmpresasBase>> Delete(int id)
         {
             var empresa = await context.Empresas.FirstOrDefaultAsync(x => x .Id == id);
 
             if (empresa != null)
             {
+                //var empleado = context.Empleados.Where(c => c.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
                 context.Empresas.Remove(empresa);
                 await context.SaveChangesAsync();
                 return Ok(empresa);

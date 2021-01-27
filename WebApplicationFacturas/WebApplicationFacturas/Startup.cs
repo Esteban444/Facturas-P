@@ -34,17 +34,15 @@ namespace WebApplicationFacturas
         {
             services.AddAutoMapper(Configuration =>
             {
-                Configuration.CreateMap<Empresas, EmpresasDTO>().ReverseMap();
-                Configuration.CreateMap<EmpresasCreacionDTO, Empresas>();
-                Configuration.CreateMap<Empresas, RequestedEmpresasDTO>();
+                Configuration.CreateMap<Empresas, EmpresasBase>().ReverseMap();
+                Configuration.CreateMap<Empresas, EmpresasRequestDTO>();
 
                 Configuration.CreateMap<Empleados, EmpleadosBase>().ReverseMap();
                 Configuration.CreateMap<EmpleadosUpdateRequestDTO, Empleados>();
                 Configuration.CreateMap<Empleados, EmpleadosRequestDTO>();
 
-                Configuration.CreateMap<Cargos, CargosDTO>().ReverseMap();
-                Configuration.CreateMap<CreacioncargosDTO, Cargos>();
-                Configuration.CreateMap<Cargos, RequestedCargosDTO>();
+                Configuration.CreateMap<Cargos, CargosBase>().ReverseMap();
+                Configuration.CreateMap<Cargos, CargosRequestDTO>();
 
                 Configuration.CreateMap<Categorias, CategoriasDTO>().ReverseMap();
                 Configuration.CreateMap<Categorias, RequestedCategoriasDTO>();

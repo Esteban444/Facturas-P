@@ -9,8 +9,8 @@ namespace WebApplicationFacturas.DTO
 {
     public class FacturasBase
     {
-        public int EmpleadoId { get; set; }
-        public int ClienteId { get; set; }
+        public int? EmpleadoId { get; set; }
+        public int? ClienteId { get; set; }
         public string NombreCliente { get; set; }
         public string Estado { get; set; }
         public int Total { get; set; }

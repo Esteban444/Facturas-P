@@ -18,7 +18,7 @@ namespace WebApplicationFacturas.Models
         public int PrecioMinimo { get; set; }
         public int PrecioMaximo { get; set; }
         public DateTime  FechaVencimiento { get; set; }
-        public int CategoriaId { get; set; }
+        public int? CategoriaId { get; set; }
 
         public Categorias Categorias { get; set; }
         public ICollection<FacturasProductos> FacturasProductos { get; set; }

@@ -18,7 +18,7 @@ namespace WebApplicationFacturas.Models
         public string Telefono { get; set; }
         public string Usuario { get; set; }
         public string Contrasena { get; set; }
-        public int EmpresaId { get; set; }
+        public int? EmpresaId { get; set; }
         
 
         public  Empresas Empresas { get; set; }
