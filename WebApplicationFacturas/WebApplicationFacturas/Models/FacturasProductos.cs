@@ -12,7 +12,7 @@ namespace WebApplicationFacturas.Models
         public int? ProductosId { get; set; }
         public string NombreProducto { get; set; }
         public int Cantidad  {get; set;}
-        public float Precio { get; set; }
+        public Decimal Precio { get; set; }
 
         public  Facturas Facturas { get; set; }
         public  Productos Productos { get; set; }

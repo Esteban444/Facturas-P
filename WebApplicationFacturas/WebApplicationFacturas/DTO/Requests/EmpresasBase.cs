@@ -13,5 +13,7 @@ namespace WebApplicationFacturas.DTO.Requests
         public string Propietario { get; set; }
         public string Email { get; set; }
         public string NIT { get; set; }
+
+        public List<EmpleadosRequestDTO> Empleados { get; set; }
     }
 }

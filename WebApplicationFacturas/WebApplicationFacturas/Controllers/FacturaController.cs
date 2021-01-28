@@ -11,6 +11,7 @@ using WebApplicationFacturas.Models;
 using WebApplicationFacturas.DTO;
 using WebApplicationFacturas.Helpers;
 using WebApplicationFacturas.DTO.Requests;
+using System.Reflection.Emit;
 
 namespace WebApplicationFacturas.Controllers
 {
@@ -28,28 +29,32 @@ namespace WebApplicationFacturas.Controllers
         }
 
         [HttpPost("Creacion-Detalle-Factura")]
-        public async Task<ActionResult<FacturasBase>> CreacionDetalleFacturas(FacturasBase facturas)
+        public async Task<ActionResult<FacturasBase>> CreacionDetalleFacturas(FacturasBase basef)
         {
             var detallefactura = new FacturasBase();
             using (var transaccion = context.Database.BeginTransaction())
             {
                 try
                 {
-                    var tablafactura = mapper.Map<Facturas>(facturas);
-                    if (!context.Empleados.Any(x => x.Id == tablafactura.EmpleadoId)) return BadRequest("El empleado no existe");
-                    if (!context.Clientes.Any(x => x.Id == tablafactura.ClienteId)) return BadRequest("El cliente no existe");
+                    var tablafactura = new Facturas();
 
+                    tablafactura.EmpleadoId = basef.EmpleadoId;
+                    tablafactura.ClienteId = basef.ClienteId;
+                    tablafactura.NombreCliente = basef.NombreCliente;
+                    tablafactura.Estado = basef.Estado;
+                    tablafactura.Total = basef.Total;
                     context.Facturas.Add(tablafactura);
                     context.SaveChanges();
 
-                    foreach (var item in facturas.FacturasProductos)
+                    foreach (var item in basef.FacturasProductos)
                     {
-                        var facturadetalle = mapper.Map<FacturasProductos>(item);
-                        if (!context.Facturas.Any(x => x.Id == facturadetalle.FacturaId)) return BadRequest("la factura no existe");
-                        if (!context.Productos.Any(x => x.Id == facturadetalle.ProductosId)) return BadRequest("El producto no existe");
+                        var facturadetalle = new FacturasProductos();
 
                         facturadetalle.FacturaId = tablafactura.Id;
-
+                        facturadetalle.ProductosId = item.ProductosId;
+                        facturadetalle.NombreProducto = item.NombreProducto;
+                        facturadetalle.Cantidad = item.Cantidad;
+                        facturadetalle.Precio = item.Precio;
                         context.FacturasProductos.Add(facturadetalle);
                     }
                     context.SaveChanges();
@@ -88,12 +93,12 @@ namespace WebApplicationFacturas.Controllers
         }
         // POST api/factura
         [HttpPost]
-        public async Task<FacturasBase> Post([FromBody] FacturasBase Facturas)
+        public async Task<FacturasBase> Post([FromBody] FacturasBase facturas)
         {
-            var factura = mapper.Map<Facturas>(Facturas);
+            var factura = mapper.Map<Facturas>(facturas);
             context.Add(factura);
             await context.SaveChangesAsync();
-            return Facturas;
+            return facturas;
         }
 
         // PUT api/factura/5
