@@ -18,5 +18,6 @@ namespace WebApplicationFacturas.DTO.Requests
         public string Contrasena { get; set; }
         public int? EmpresaId { get; set; }
 
+        public List<CargosRequestDTO> Cargos { get; set; }
     }
 }

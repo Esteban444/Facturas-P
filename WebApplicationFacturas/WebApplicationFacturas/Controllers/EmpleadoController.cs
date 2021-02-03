@@ -105,16 +105,11 @@ namespace WebApplicationFacturas.Controllers
 
             if (empleadobd != null)
             {
-                var cargo = context.Cargos.Where(c => c.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
+                context.Facturas.Where(f => f.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
 
-                var empleados = context.Empleados.Where(e => e.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
-                
-                var empleadob = context.Facturas.Where(f => f.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
-                
                 context.Remove(empleadobd);
                 await context.SaveChangesAsync();
                 return Ok(empleadobd);
-                
             }
             else
             {

@@ -32,7 +32,7 @@ namespace WebApplicationFacturas.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmpresasRequestDTO>>> Get()
         {
-            var empresas = await context.Empresas.Include("Empleados").ToListAsync();
+            var empresas = await context.Empresas.ToListAsync();
             var empresasDTO = mapper.Map<List<EmpresasRequestDTO>>(empresas);
             return empresasDTO;
         }
@@ -60,7 +60,7 @@ namespace WebApplicationFacturas.Controllers
             var empresa = mapper.Map<Empresas>(empresasb);
             context.Add(empresa);
             await context.SaveChangesAsync();
-            //var empresaDTO = mapper.Map<EmpresasDTO>(empresa);
+         
             return empresasb;
         }
         
@@ -110,7 +110,7 @@ namespace WebApplicationFacturas.Controllers
 
             if (empresa != null)
             {
-                var empresas = context.Empleados.Where(c => c.EmpresaId == id).SingleOrDefault(a => a.EmpresaId == id);
+              
                 context.Empresas.Remove(empresa);
                 await context.SaveChangesAsync();
                 return Ok(empresa);
