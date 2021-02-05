@@ -56,7 +56,7 @@ namespace WebApplicationFacturas.Controllers
         {
             var empleado = mapper.Map<Empleados>(empleados);
             context.Add(empleado);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync();  
             return empleados;
         }
 
