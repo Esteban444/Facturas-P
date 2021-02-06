@@ -107,7 +107,6 @@ namespace WebApplicationFacturas.Controllers
 
             if (cargo != null)
             {
-                var cargob = context.Cargos.Where(c => c.EmpleadoId == id).SingleOrDefault(a => a.EmpleadoId == id);
                 context.Remove(cargo);
                 await context.SaveChangesAsync();
                 return Ok(cargo);
