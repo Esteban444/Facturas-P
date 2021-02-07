@@ -50,7 +50,7 @@ namespace WebApplicationFacturas.Controllers
                     {
                         var facturadetalle = new FacturasProductos();
 
-                        facturadetalle.FacturaId = tablafactura.Id;
+                        facturadetalle.FacturaId = tablafactura.Id;   
                         facturadetalle.ProductosId = item.ProductosId;
                         facturadetalle.NombreProducto = item.NombreProducto;
                         facturadetalle.Cantidad = item.Cantidad;
@@ -61,7 +61,7 @@ namespace WebApplicationFacturas.Controllers
                     transaccion.Commit();
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
 
                 }
